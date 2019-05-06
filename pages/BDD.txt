@@ -1,0 +1,1 @@
+Orange|500|1000|Pomme|9|800|Mangue|456|750|Citron|1000|450|Banane|254|850|Pasteque|450|1500|Melon|258|1750|Cerise|457|1250|Fraise|365|900|Poire|7|1550|

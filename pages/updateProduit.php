@@ -23,19 +23,20 @@
             <div class="col-md-3"></div>
             <div class="col-md-6 bor">
             <?php
-                $produits=array( array("Orange","Pomme","Mangue","Citron","Banane","Pasteque","Melon","Cerise","Fraise","Poire"),
-                                 array("Orange"=>500,"Pomme"=>9,"Mangue"=>456,"Citron"=>1000,"Banane"=>254,"Pasteque"=>450,"Melon"=>258,"Cerise"=>457,"Fraise"=>365,"Poire"=>7),
-                                 array("Orange"=>1000,"Pomme"=>800,"Mangue"=>750,"Citron"=>450,"Banane"=>850,"Pasteque"=>1500,"Melon"=>1750,"Cerise"=>1250,"Fraise"=>900,"Poire"=>1550)
-                );
+                $monfichier = fopen('BDD.txt', 'r');
+                $ligne = fgets($monfichier);
+                $produits=explode('|',$ligne);
+                fclose($monfichier);
+
                     $prodExiste=0;
                     $nouvPro=$_POST["produit"];//recupere le nom du produit saisi dans le formulaire via le tableau $_POST
-                    for($i=0;$i<count($produits[0]);$i++){//casse
-                            if(!strcasecmp($nouvPro,$produits[0][$i])){//pour gerer la casse
-                                $nouvPro=$produits[0][$i];
-                            }
+                    for($i=0;$i<substr_count($ligne,"|");$i+=3){//casse
+                        if(!strcasecmp($nouvPro,$produits[$i])){//pour gerer la casse
+                            $nouvPro=$produits[$i];
+                        }
                     }
-                    for($i=0;$i<count($produits[0]);$i++){//permet de parcourir tout le tableau (count renvoi la taille du tableau)
-                        if($produits[0][$i]==$nouvPro){//verifie si le produit à ajouter n existe pas deja
+                    for($i=0;$i<substr_count($ligne,"|");$i+=3){//permet de parcourir tout le tableau (count renvoi la taille du tableau)
+                        if($produits[$i]==$nouvPro){//verifie si le produit à ajouter n existe pas deja
                             $prodExiste=1;//si existe deja le variable $prodExiste=1 cela nous permettra de bloquer l'ajout
                             }
                     }
@@ -94,17 +95,50 @@
                 function format($n){//permet d afficher le separateur de millier
                     return strrev(wordwrap(strrev($n), 3, ' ', true));
                 }
-                if($_POST["quantite"]>=0 && $_POST["quantite"]!=""){//pour ne pas ecraser l'ancienne valeur si on ne souhaite pas modifier la quantité (mais uniquement le prix)
-                    $produits[1][$nouvPro]=$_POST["quantite"];//modification de la quantité en fonction du produit
+
+                if($_POST["quantite"]>=0 && $_POST["quantite"]!="" && $prodExiste==1){//pour ne pas ecraser l'ancienne valeur si on ne souhaite pas modifier la quantité (mais uniquement le prix)
+                    for($i=0;$i<substr_count($ligne,"|");$i++){
+                        $Element=$produits[$i];
+                        if($nouvPro==$produits[$i-1]){
+                            $Element=$_POST["quantite"];
+                        }
+                        $nouvelleChaine=$nouvelleChaine.$Element."|";
+                    }
+                    $monfichier = fopen('BDD.txt', 'w+');
+                    fwrite($monfichier,$nouvelleChaine);
+                    fclose($monfichier);
                 }
-                if($_POST["prix"]>=100){//pour ne pas ecraser l'ancienne valeur si on ne souhaite pas modifier le prix (mais uniquement la quantité)
-                    $produits[2][$nouvPro]=$_POST["prix"];//modification du prix en fonction du produit
+                $nouvelleChaine="";
+                if($_POST["prix"]>=100 && $prodExiste==1){//pour ne pas ecraser l'ancienne valeur si on ne souhaite pas modifier le prix (mais uniquement la quantité)
+                    $monfichier = fopen('BDD.txt', 'r');
+                    $ligne = fgets($monfichier);
+                    $produits=explode('|',$ligne);
+                    fclose($monfichier);
+
+                    for($i=0;$i<substr_count($ligne,"|");$i++){
+                        $Element=$produits[$i];
+                        if($nouvPro==$produits[$i-2]){
+                            $Element=$_POST["prix"];
+                        }
+                        $nouvelleChaine=$nouvelleChaine.$Element."|";
+                    }
+                    $monfichier = fopen('BDD.txt', 'w+');
+                    fwrite($monfichier,$nouvelleChaine);
+                    fclose($monfichier);
                 }
+                
+                
+
+                $monfichier = fopen('BDD.txt', 'r');
+                $ligne = fgets($monfichier);
+                $produits=explode('|',$ligne);
+                fclose($monfichier);
+
                 $j=0;
-                for($i=0;$i<count($produits[0]);$i++){
-                    $leProdruit=$produits[0][$i];
-                    $laQuantite=$produits[1][$leProdruit];
-                    $lePrix=$produits[2][$leProdruit];
+                for($i=0;$i<substr_count($ligne,"|");$i+=3){
+                    $leProdruit=$produits[$i];
+                    $laQuantite=$produits[$i+1];
+                    $lePrix=$produits[$i+2];
                     if($laQuantite>=10){
                         $j++;
                         echo
@@ -129,7 +163,7 @@
                     }
                     $totalQuant+=$laQuantite;//calcul le total des quantités
                     $Totprix+=$lePrix;//calcul le total des prix pour calculer la moyenne
-                    $prixMoy=$Totprix/($i+1);//$i+1 car à la fin $i=9 
+                    $prixMoy=$Totprix/(($i/3)+1);
                     $totalMont+=$laQuantite*$lePrix;           
                 }
                 echo    

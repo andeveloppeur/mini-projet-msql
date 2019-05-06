@@ -23,10 +23,12 @@
             <div class="col-md-3"></div>
             <div class="col-md-6 bor">
             <?php
-                $produits=array( array("Orange","Pomme","Mangue","Citron","Banane","Pasteque","Melon","Cerise","Fraise","Poire"),
-                                 array("Orange"=>500,"Pomme"=>9,"Mangue"=>456,"Citron"=>1000,"Banane"=>254,"Pasteque"=>450,"Melon"=>258,"Cerise"=>457,"Fraise"=>365,"Poire"=>7),
-                                 array("Orange"=>1000,"Pomme"=>800,"Mangue"=>750,"Citron"=>450,"Banane"=>850,"Pasteque"=>1500,"Melon"=>1750,"Cerise"=>1250,"Fraise"=>900,"Poire"=>1550)
-                );
+                
+                    $monfichier = fopen('BDD.txt', 'r');
+                    $ligne = fgets($monfichier);
+                    $produits=explode('|',$ligne);
+                    fclose($monfichier);
+
                     $recherch_reussi=0;
                     if($_POST["quantite"]>=0 && $_POST["quantite"]!="" && $_POST["prixMin"]>=0 && $_POST["prixMin"]!="" && $_POST["prixMax"]>0 && $_POST["prixMax"]>$_POST["prixMin"] || $_POST["quantite"]>=0 && $_POST["quantite"]!="" && $_POST["prixMin"]=="" && $_POST["prixMax"]=="" || $_POST["quantite"]=="" && $_POST["prixMin"]>=0 && $_POST["prixMin"]!="" && $_POST["prixMax"]>0 && $_POST["prixMax"]>$_POST["prixMin"]){
                         $recherch_reussi=1;
@@ -37,8 +39,7 @@
                             <div class="col-md-2"></div>
                             <input class="form-control col-md-8 espace '; if(isset($_POST["valider"]) && $seuilQuantite<0){echo'rougMoins';} echo'" type="number" id="quantite" name="quantite"';
                             if($seuilQuantite<0 && $seuilQuantite!=""){echo' placeholder="Impossible car '.$seuilQuantite.' est inférieur à 0"';} 
-                            elseif($recherch_reussi==1){echo' placeholder="Quantité supérieur ou égal à :" value=""';}//si recherch reussi
-                            elseif($seuilQuantite>=0 && isset($_POST["valider"]) && $seuilQuantite!=""){echo' value="'.$seuilQuantite.'"';} 
+                            elseif($seuilQuantite>=0 && isset($_POST["valider"]) && $seuilQuantite!=""){echo' placeholder="Quantité supérieur ou égal à :" value="'.$seuilQuantite.'"';} 
                             elseif($seuilQuantite==""){echo' placeholder="Quantité supérieur ou égal à :" value=""';}echo'>';//lors du chargement de la page
                     echo'</div>';
 
@@ -46,9 +47,8 @@
                     echo'<div class="row">
                             <div class="col-md-2"></div><input class="form-control col-md-8 espace ';if(isset($_POST["valider"]) && $seuilPrixMin<0 && $seuilPrixMin!="" || isset($_POST["valider"]) && $_POST["prixMax"]>=0 && $_POST["prixMax"]!=0 && $seuilPrixMin==""){echo'rougMoins';} echo'" type="number" id="prixMin" name="prixMin"';
                             if($seuilPrixMin<0 && $seuilPrixMin!=""){echo' placeholder="Impossible car '.$seuilPrixMin.' est inférieur à 0"';}
-                            elseif($recherch_reussi==1){echo' placeholder="Prix (Bonre inférieur) :" value=""';}//si recherch reussi
                             elseif($_POST["prixMax"]>=0 && $_POST["prixMax"]!=0 && $seuilPrixMin==""){echo' placeholder="Remplir la borne supérieur "';}
-                            elseif($seuilPrixMin>=0 && isset($_POST["valider"]) && $seuilPrixMin!=""){echo' value="'.$seuilPrixMin.'"';}
+                            elseif($seuilPrixMin>=0 && isset($_POST["valider"]) && $seuilPrixMin!=""){echo' placeholder="Prix (Bonre inférieur) :" value="'.$seuilPrixMin.'"';}
                             elseif($seuilPrixMin==""){echo' placeholder="Prix (Bonre inférieur) :" value=""';}echo'>';//lors du chargement de la page
                     echo'</div>';
                     $seuilPrixMax=$_POST["prixMax"];//recuperation du seuil (prixMax)
@@ -57,8 +57,7 @@
                             if($seuilPrixMax<0 && $seuilPrixMax!=""){echo' placeholder="Impossible car '.$seuilPrixMax.' est inférieur à 0"';}
                             elseif($seuilPrixMax<$seuilPrixMin && $seuilPrixMax!=""){echo' placeholder="Impossible car '.$seuilPrixMax.' est inférieur à '.$seuilPrixMin.'"';}
                             elseif($seuilPrixMin>=0 && $seuilPrixMin!=0 && $seuilPrixMax==""){echo' placeholder="Remplir la borne supérieur "';}
-                            elseif($recherch_reussi==1){echo' placeholder="Prix (Bonre supérieur) :" value=""';}//si recherch reussi
-                            elseif($seuilPrixMax>=0 && isset($_POST["valider"])&& $seuilPrixMax!=""){echo' value="'.$seuilPrixMax.'"';}
+                            elseif($seuilPrixMax>=0 && isset($_POST["valider"])&& $seuilPrixMax!=""){echo' placeholder="Prix (Bonre supérieur) :" value="'.$seuilPrixMax.'"';}
                             elseif($seuilPrixMax==""){echo' placeholder="Prix (Bonre supérieur) :" value=""';}echo'>';//lors du chargement de la page
                     echo'</div>';
                 ?>
@@ -84,10 +83,10 @@
                         return strrev(wordwrap(strrev($n), 3, ' ', true));
                     }
                     $j=0;
-                    for($i=0;$i<count($produits[0]);$i++){
-                        $leProdruit=$produits[0][$i];
-                        $laQuantite=$produits[1][$leProdruit];
-                        $lePrix=$produits[2][$leProdruit];
+                    for($i=0;$i<substr_count($ligne,"|");$i+=3){
+                        $leProdruit=$produits[$i];
+                        $laQuantite=$produits[$i+1];
+                        $lePrix=$produits[$i+2];
                         if($laQuantite>=$seuilQuantite && $lePrix>=$seuilPrixMin && $lePrix<=$seuilPrixMax && $seuilQuantite>=0 && $seuilPrixMin>=0 && $seuilPrixMax>=0){//permet d'afficher les produits qui ont une quantité et un prix superieurs au seuil
                             if($laQuantite>=10){
                                 $j++;
@@ -113,7 +112,7 @@
                             }
                             $totalQuant+=$laQuantite;//calcul le total des quantités
                             $Totprix+=$lePrix;//calcul le total des prix pour calculer la moyenne
-                            $prixMoy=$Totprix/($i+1);//$i+1 car à la fin $i=9 
+                            $prixMoy=$Totprix/(($i/3)+1);  
                             $totalMont+=$laQuantite*$lePrix; 
                         }
                         elseif($seuilQuantite=="" && $lePrix>=$seuilPrixMin && $lePrix<=$seuilPrixMax && $seuilPrixMin>=0 && $seuilPrixMax>=0){
@@ -141,7 +140,7 @@
                             }
                             $totalQuant+=$laQuantite;//calcul le total des quantités
                             $Totprix+=$lePrix;//calcul le total des prix pour calculer la moyenne
-                            $prixMoy=$Totprix/($i+1);//$i+1 car à la fin $i=9 
+                            $prixMoy=$Totprix/(($i/3)+1);  
                             $totalMont+=$laQuantite*$lePrix; 
                         }
                         elseif($seuilQuantite=="" && $lePrix>=$seuilPrixMin && $seuilPrixMax=="" && $seuilPrixMin>=0){
@@ -169,7 +168,7 @@
                             }
                             $totalQuant+=$laQuantite;//calcul le total des quantités
                             $Totprix+=$lePrix;//calcul le total des prix pour calculer la moyenne
-                            $prixMoy=$Totprix/($i+1);//$i+1 car à la fin $i=9 
+                            $prixMoy=$Totprix/(($i/3)+1);  
                             $totalMont+=$laQuantite*$lePrix; 
                         }
                         elseif($seuilQuantite=="" && $seuilPrixMin=="" && $lePrix<=$seuilPrixMax && $seuilPrixMax>=0){
@@ -197,7 +196,7 @@
                             }
                             $totalQuant+=$laQuantite;//calcul le total des quantités
                             $Totprix+=$lePrix;//calcul le total des prix pour calculer la moyenne
-                            $prixMoy=$Totprix/($i+1);//$i+1 car à la fin $i=9 
+                            $prixMoy=$Totprix/(($i/3)+1);  
                             $totalMont+=$laQuantite*$lePrix; 
                         }
                         elseif($laQuantite>=$seuilQuantite && $seuilPrixMin=="" && $seuilPrixMax=="" && $seuilQuantite>=0 ){//permet d'afficher les produits qui ont une quantité et un prix superieurs au seuil
@@ -225,7 +224,7 @@
                             }
                             $totalQuant+=$laQuantite;//calcul le total des quantités
                             $Totprix+=$lePrix;//calcul le total des prix pour calculer la moyenne
-                            $prixMoy=$Totprix/($i+1);//$i+1 car à la fin $i=9 
+                            $prixMoy=$Totprix/(($i/3)+1);  
                             $totalMont+=$laQuantite*$lePrix; 
                         }
 

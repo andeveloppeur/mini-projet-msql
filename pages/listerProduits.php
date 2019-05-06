@@ -19,14 +19,15 @@
     </nav>
     <header></header>
     <section class="container cListe">
+            <?php
+                $monfichier = fopen('BDD.txt', 'r');
+                $ligne = fgets($monfichier);
+                $produits=explode('|',$ligne);
+                fclose($monfichier);
+            ?>
         <table class="col-12 tabliste table">
 
-            <?php
-            $produits=array( array("Orange","Pomme","Mangue","Citron","Banane","Pasteque","Melon","Cerise","Fraise","Poire"),
-            array("Orange"=>500,"Pomme"=>9,"Mangue"=>456,"Citron"=>1000,"Banane"=>254,"Pasteque"=>450,"Melon"=>258,"Cerise"=>457,"Fraise"=>365,"Poire"=>7),
-            array("Orange"=>1000,"Pomme"=>800,"Mangue"=>750,"Citron"=>450,"Banane"=>850,"Pasteque"=>1500,"Melon"=>1750,"Cerise"=>1250,"Fraise"=>900,"Poire"=>1550)
-           );
-            ?>
+            
             <thead class="thead-dark">
                 <tr class="row">
                     <td class="col-md-1 text-center gras">N°</td>
@@ -41,10 +42,10 @@
                 return strrev(wordwrap(strrev($n), 3, ' ', true));
             }
             $j=0;
-            for($i=0;$i<count($produits[0]);$i++){
-                $leProdruit=$produits[0][$i];
-                $laQuantite=$produits[1][$leProdruit];
-                $lePrix=$produits[2][$leProdruit];
+            for($i=0;$i<substr_count($ligne,"|");$i+=3){
+                $leProdruit=$produits[$i];
+                $laQuantite=$produits[$i+1];
+                $lePrix=$produits[$i+2];
                 if($laQuantite>=10){
                     $j++;
                     echo
@@ -69,7 +70,7 @@
                 }
                 $totalQuant+=$laQuantite;//calcul le total des quantités
                 $Totprix+=$lePrix;//calcul le total des prix pour calculer la moyenne
-                $prixMoy=$Totprix/($i+1);//$i+1 car à la fin $i=9 
+                $prixMoy=$Totprix/(($i/3)+1); 
                 $totalMont+=$laQuantite*$lePrix; 
             }
             echo

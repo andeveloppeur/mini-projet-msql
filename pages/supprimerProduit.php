@@ -23,19 +23,20 @@
             <div class="col-md-3"></div>
             <div class="col-md-6 bor">
                     <?php
-                    $produits=array( array("Orange","Pomme","Mangue","Citron","Banane","Pasteque","Melon","Cerise","Fraise","Poire"),
-                                    array("Orange"=>500,"Pomme"=>9,"Mangue"=>456,"Citron"=>1000,"Banane"=>254,"Pasteque"=>450,"Melon"=>258,"Cerise"=>457,"Fraise"=>365,"Poire"=>7),
-                                    array("Orange"=>1000,"Pomme"=>800,"Mangue"=>750,"Citron"=>450,"Banane"=>850,"Pasteque"=>1500,"Melon"=>1750,"Cerise"=>1250,"Fraise"=>900,"Poire"=>1550)
-                    );
+                    $monfichier = fopen('BDD.txt', 'r');
+                    $ligne = fgets($monfichier);
+                    $produits=explode('|',$ligne);
+                    fclose($monfichier);
                     $prodExiste=0;
+
                     $supPro=$_POST["produit"];//recupere le nom du produit saisi dans le formulaire via le tableau $_POST
-                    for($i=0;$i<count($produits[0]);$i++){//casse
-                            if(!strcasecmp($supPro,$produits[0][$i])){//pour gerer la casse
-                                $supPro=$produits[0][$i];
-                            }
+                    for($i=0;$i<substr_count($ligne,"|");$i+=3){//casse
+                        if(!strcasecmp($supPro,$produits[$i])){//pour gerer la casse
+                            $supPro=$produits[$i];
+                        }
                     }
-                    for($i=0;$i<count($produits[0]);$i++){//permet de parcourir tout le tableau (count renvoi la taille du tableau)
-                        if($produits[0][$i]==$supPro){//verifie si le produit à ajouter n existe pas deja
+                    for($i=0;$i<substr_count($ligne,"|");$i+=3){//permet de parcourir tout le tableau (count renvoi la taille du tableau)
+                        if($produits[$i]==$supPro){//verifie si le produit à ajouter n existe pas deja
                             $prodExiste=1;//si existe deja le variable $prodExiste=1 cela nous permettra de bloquer l'ajout
                             }
                     }
@@ -73,16 +74,26 @@
                 
                 
                 if($supPro!="" && $prodExiste==1){
-                    $indice=array_search($supPro, $produits[0]);//array_search($supPro, $produits[0]) retourne l'indice ou se trouve l'element à supprimer
-                    unset($produits[0][$indice]);//la fonction unset permet de supprimer l'element du tableau
-                    unset($produits[1][$supPro]);//on utilise $Quantite[$supPro] car dans les quantités, les clefs correspondent au nom des produits 
-                    unset($produits[2][$supPro]);
+                    for($i=0;$i<substr_count($ligne,"|");$i+=3){
+                        if($supPro==$produits[$i]){
+                            $aSupprimer=$produits[$i]."|".$produits[$i+1]."|".$produits[$i+2]."|";
+                            $nouvelleChaine=str_replace($aSupprimer,"",$ligne);
+                        }
+                    }
+                    $monfichier = fopen('BDD.txt', 'w+');
+                    fwrite($monfichier,$nouvelleChaine);
+                    fclose($monfichier);
                 }
+
+                $monfichier = fopen('BDD.txt', 'r');
+                $ligne = fgets($monfichier);
+                $produits=explode('|',$ligne);
+                fclose($monfichier);
                 $j=0;
-                foreach ($produits[0] as $prod){//Ici la boucle foreach est préferable au boucle for car par ex lors de la suppression de l element qui a l'indice 2 le tableau apres suppression aura les indices 0 1 3 4....
-                    $leProdruit=$prod;
-                    $laQuantite=$produits[1][$leProdruit];
-                    $lePrix=$produits[2][$leProdruit];
+                for($i=0;$i<substr_count($ligne,"|");$i+=3){
+                    $leProdruit=$produits[$i];
+                    $laQuantite=$produits[$i+1];
+                    $lePrix=$produits[$i+2];
                     
                     if($leProdruit!=""){
                         if($laQuantite>=10){
@@ -109,7 +120,7 @@
                         }   
                         $totalQuant+=$laQuantite;//calcul le total des quantités
                         $Totprix+=$lePrix;//calcul le total des prix pour calculer la moyenne
-                        $prixMoy=$Totprix/$i;//pas de $i+1 car on a utiliser foreach
+                        $prixMoy=$Totprix/(($i/3)+1);
                         $totalMont+=$laQuantite*$lePrix; 
                     }      
                 }

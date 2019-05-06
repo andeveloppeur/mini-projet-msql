@@ -22,28 +22,27 @@ session_start();
     </nav>
     <header></header>
     <section class="container corps">
-        <?php
-            $produits=array( array("Orange","Pomme","Mangue","Citron","Banane","Pasteque","Melon","Cerise","Fraise","Poire"),
-                         array("Orange"=>500,"Pomme"=>9,"Mangue"=>456,"Citron"=>1000,"Banane"=>254,"Pasteque"=>450,"Melon"=>258,"Cerise"=>457,"Fraise"=>365,"Poire"=>7),
-                         array("Orange"=>1000,"Pomme"=>800,"Mangue"=>750,"Citron"=>450,"Banane"=>850,"Pasteque"=>1500,"Melon"=>1750,"Cerise"=>1250,"Fraise"=>900,"Poire"=>1550)
-                        );
-                
-        ?>
+            <?php
+                $monfichier = fopen('BDD.txt', 'r');
+                $ligne = fgets($monfichier);
+                $produits=explode('|',$ligne);
+                fclose($monfichier);
+            ?>
         <form action="ajouterProduit.php" method="POST" class="tab row">
             <div class="col-md-3"></div>
             <div class="col-md-6 bor">
                 <?php
                     $prodExiste=0;
                     $nouvPro=$_POST["produit"];//recupere le nom du produit saisi dans le formulaire via le tableau $_POST
-                    for($i=0;$i<count($produits[0]);$i++){//casse
-                            if(!strcasecmp($nouvPro,$produits[0][$i])){//pour gerer la casse
-                                $nouvPro=$produits[0][$i];
+                    for($i=0;$i<substr_count($ligne,"|");$i+=3){//casse
+                            if(!strcasecmp($nouvPro,$produits[$i])){//pour gerer la casse
+                                $nouvPro=$produits[$i];
                             }
                     }
-                    for($i=0;$i<count($produits[0]);$i++){//permet de parcourir tout le tableau (count renvoi la taille du tableau)
-                        if($produits[0][$i]==$nouvPro){//verifie si le produit à ajouter n existe pas deja
+                    for($i=0;$i<substr_count($ligne,"|");$i+=3){//permet de parcourir tout le tableau
+                        if($produits[$i]==$nouvPro){//verifie si le produit à ajouter n existe pas deja
                             $prodExiste=1;//si existe deja le variable $prodExiste=1 cela nous permettra de bloquer l'ajout
-                            }
+                        }
                     }
                     $ajout_reussi=0;
                     if($prodExiste==0 && $nouvPro!="" && $_POST["quantite"]>=0 && $_POST["prix"]>=100){
@@ -101,15 +100,22 @@ session_start();
                 return strrev(wordwrap(strrev($n), 3, ' ', true));//strrev permet de renverser une chaine de caractere et wordwrap permet d inserer l espace
             }
             if($nouvPro!="" && $nouvQuant>=0 && $nouvPrix>=100 && $prodExiste==0){//pour eviter d'ajouter un element vide dans le tableau lorsque la page sera actualiser et que $nouvPro sera vide
-                array_push($produits[0],$nouvPro);//array_push permet d ajouter un element au tableau
-                $produits[1][$nouvPro]=$nouvQuant;//ajout d'une nouvelle quantité qui aura comme clef le nom du produit 
-                $produits[2][$nouvPro]=$nouvPrix;//même chose
+                $monfichier = fopen('BDD.txt', 'w+');
+                $ligne=$ligne.$nouvPro."|".$nouvQuant."|".$nouvPrix."|";//ligne deja recuperer en haut
+                
+                fwrite($monfichier,$ligne);
+                fclose($monfichier);
+                
+                $monfichier = fopen('BDD.txt', 'r');
+                $ligne = fgets($monfichier);
+                $produits=explode('|',$ligne);
+                fclose($monfichier);
             }
             $j=0;
-            for($i=0;$i<count($produits[0]);$i++){//permet de parcourir tout le tableau (count renvoi la taille du tableau)
-                $leProdruit=$produits[0][$i];
-                $laQuantite=$produits[1][$leProdruit];
-                $lePrix=$produits[2][$leProdruit];
+            for($i=0;$i<substr_count($ligne,"|");$i+=3){//permet de parcourir tout le tableau (count renvoi la taille du tableau)
+                $leProdruit=$produits[$i];
+                $laQuantite=$produits[$i+1];
+                $lePrix=$produits[$i+2];
                 if($laQuantite>=10){//pour savoir les produit à renouveller
                     $j++;
                     echo
@@ -134,7 +140,7 @@ session_start();
                 }
                 $totalQuant+=$laQuantite;//calcul le total des quantités
                 $Totprix+=$lePrix;//calcul le total des prix pour calculer la moyenne
-                $prixMoy=$Totprix/($i+1);//$i+1 car à la fin $i=9 
+                $prixMoy=$Totprix/(($i/3)+1);
                 $totalMont+=$laQuantite*$lePrix;              
             }
             echo//permet d afficher le total des elements
