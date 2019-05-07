@@ -1,0 +1,5 @@
+Abdoulaye Ndoye|Abdou|771050106|petit Mbao|layendoyesn@gmail.com|azerty|admin|actif|
+Assane Ndoye|azou|779398484|petit Mbao|azou@gmail.com|1990|user|actif|
+Awa ciss|awa|778544646|petit Mbao|evawaciss@gmail.com|1963|user|actif|
+Oumou ndoye|okn|772551462|petit Mbao|OKN@gmail.com|1999|user|actif|
+Souleymane Dieme|Jule|78895555|SA|soul@gmail.com|azerty|user|actif|

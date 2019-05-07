@@ -33,33 +33,34 @@ session_start();
                     <input type="submit" class="form-control col-md-6 espace" value="Connexion">
                 </div>
                 <?php
-                    $monfichier = fopen('Aut.csv', 'r');
-                    $ligne = fgets($monfichier);
-                    $utilisateurs=explode('|',$ligne);
-                    fclose($monfichier);
-
-                    $login=$_POST["login"];//recuperation du login 
-                    $mDp=$_POST["MDP"];//recuperation du MDP
-                    $reussi=0;
-                    if($login!="" && $mDp!=""){
-                        for($i=0;$i<substr_count($ligne,"|");$i+=3){
-                            if($utilisateurs[$i+1]==$login){
-                                if($utilisateurs[$i+2]==$mDp){
+                    $monfichier = fopen('Aut.txt', 'r');
+                    while(!feof($monfichier)){
+                        $ligne = fgets($monfichier);
+                        $utilisateurs=explode('|',$ligne);
+                        
+                        $login=$_POST["login"];//recuperation du login 
+                        $mDp=$_POST["MDP"];//recuperation du MDP
+                        $reussi=0;
+                        if($login!="" && $mDp!=""){
+                            if($utilisateurs[1]==$login){
+                                if($utilisateurs[5]==$mDp){
                                     header('Location: pages/accueil.php');
-                                    $_SESSION["nom"]=$utilisateurs[$i];
+                                    $_SESSION["nom"]=$utilisateurs[0];
+                                    $_SESSION["login"]=$utilisateurs[1];
+                                    $_SESSION["profil"]=$utilisateurs[6];
                                     $reussi=1;
                                 }
                             }
+                            if($reussi==0){//verification du login et du MDP
+                                echo"
+                                <div class='row'>
+                                <div class=col-md-3></div>
+                                <p class='blocAcc'>Erreur sur le login ou le mot de passe !!</p>
+                                </div>";
+                            }
                         }
-                        if($reussi==0){//verification du login et du MDP
-                            echo"
-                            <div class='row'>
-                            <div class=col-md-3></div>
-                            <p class='blocAcc'>Erreur sur le login ou le mot de passe !!</p>
-                            </div>";
-                        }
-                        
                     }
+                    fclose($monfichier);
                 ?>
             </div>
         </form>

@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="FR-fr">
 <head>
@@ -16,6 +19,12 @@
         <a class="nav-link nav-item" href="ajouterProduit.php">Ajouter</a>
         <a class="nav-link nav-item" href="updateProduit.php">Modifier</a>
         <a class="nav-link active nav-item" href="supprimerProduit.php">Supprimer</a>
+        <?php
+            if($_SESSION["profil"]=="admin"){
+                echo'<a class="nav-link nav-item" href="Utilisateur.php">Utilisateurs</a>';
+            }        
+        ?>
+        <a class="nav-link nav-item" href="../index.php">Déconnection</a>
     </nav>
     <header></header>
     <section class="container corps">
