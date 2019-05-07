@@ -1,5 +1,11 @@
 <?php
 session_start();
+if($_SESSION["profil"]!="admin" && $_SESSION["profil"]!="user" ){
+    echo'<h1>Connectez-vous</h1>';
+    header('Location: ../index.php');
+    exit();
+} 
+$_SESSION['ouvert']=1;
 ?>
 <!DOCTYPE html>
 <html lang="FR-fr">
@@ -30,6 +36,7 @@ session_start();
     <section class="container">
         <?php
             echo"<h2 class='bienv'>Bienvenue ".$_SESSION["nom"]."</h2>";//affiche bienvenue suivi du nom de l'utilisateur
+            
         ?>
     </section>
     <?php

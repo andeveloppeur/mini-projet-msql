@@ -1,5 +1,10 @@
 <?php
 session_start();
+if($_SESSION["profil"]!="admin" && $_SESSION["profil"]!="user" ){
+    echo'<h1>Connectez-vous</h1>';
+    header('Location: ../index.php');
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="FR-fr">
@@ -36,7 +41,6 @@ session_start();
             ?>
         <table class="col-12 tabliste table">
 
-            
             <thead class="thead-dark">
                 <tr class="row">
                     <td class="col-md-1 text-center gras">N°</td>

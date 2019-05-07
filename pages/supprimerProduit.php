@@ -1,5 +1,10 @@
 <?php
 session_start();
+if($_SESSION["profil"]!="admin" && $_SESSION["profil"]!="user" ){
+    echo'<h1>Connectez-vous</h1>';
+    header('Location: ../index.php');
+    exit();
+} 
 ?>
 <!DOCTYPE html>
 <html lang="FR-fr">
