@@ -115,7 +115,7 @@ if($_SESSION["profil"]!="admin"){
 
                     if($nouv!=""){
                         $monfichier = fopen('../Aut.txt', 'w+');
-                        fwrite($monfichier,$nouv);//on ecrit le fichier pour enregister la modification du statut de l utilisateur
+                        fwrite($monfichier,trim($nouv));//on ecrit le fichier pour enregister la modification du statut de l utilisateur
                         fclose($monfichier);
                     }
                     
@@ -129,7 +129,6 @@ if($_SESSION["profil"]!="admin"){
                     $profil=$_POST["profil"];
 
                     //gerer le cas ou le login existe deja
-
                     
                     if(isset($_POST["valider"]) && $MDP==$MDPconf && $existeDeja==0){
                         $monfichier = fopen('../Aut.txt', 'a+');
@@ -137,7 +136,7 @@ if($_SESSION["profil"]!="admin"){
                         fwrite($monfichier,$nouvU);//ajout 
                         fclose($monfichier);
                     }
-                    elseif(isset($_POST["valider"]) && $MDP!=$MDPconf || $existeDeja==1){//si errer lors de la creation de l utilisateur
+                    elseif(isset($_POST["valider"]) && $MDP!=$MDPconf || isset($_POST["valider"]) && $existeDeja==1){//si errer lors de la creation de l utilisateur
                         echo"
                         <div class='row'>";
                             
