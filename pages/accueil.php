@@ -36,7 +36,6 @@ $_SESSION['ouvert']=1;
     <section class="container">
         <?php
             echo"<h2 class='bienv'>Bienvenue ".$_SESSION["nom"]."</h2>";//affiche bienvenue suivi du nom de l'utilisateur
-            
         ?>
     </section>
     <?php
