@@ -114,7 +114,7 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
                 return strrev(wordwrap(strrev($n), 3, ' ', true));
             }
 
-            //////////////////////////////////------Debut affichage-----//////////////////////////
+
             try {
                 $connexion = new PDO("mysql:host=$serveur;dbname=mini-projet-php;charset=utf8", $Monlogin, $Monpass); //se connecte au serveur mysquel
                 $connexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); //setAttribute — Configure l'attribut PDO $connexion
@@ -125,6 +125,8 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
                     $requete->execute();
                 }
                 /////////////////////////////-----Fin suppression-----//////////////////////////
+
+                /////////////////////////////------Debut affichage-----/////////////////////////
                 $codemysql = "SELECT * FROM `Liste-produits`";
                 $requete = $connexion->prepare($codemysql);
                 $requete->execute();
@@ -162,10 +164,12 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
                     <td class="col-md-2 text-center gras">' . $prixMoy . '</td>
                     <td class="col-md-3 text-center gras">' . format($totalMont) . '</td>
                     </tr>';
-            } catch (PDOException $e) {
+            ////////////////////////////////------Fin affichage-----//////////////////////////
+            } 
+            catch (PDOException $e) {
                 echo "ECHEC : " . $e->getMessage(); //en cas d erreur lors de la connexion à la base de données mysql
             }
-            //////////////////////////////////------Fin affichage-----//////////////////////////
+
             ?>
         </table>
     </section>
