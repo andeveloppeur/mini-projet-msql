@@ -39,12 +39,6 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
             <div class="col-md-3"></div>
             <div class="col-md-6 bor">
                 <?php
-
-                $monfichier = fopen('BDD.txt', 'r');
-                $ligne = fgets($monfichier);
-                $produits = explode('|', $ligne);
-                fclose($monfichier);
-
                 $recherch_reussi = 0;
                 if ($_POST["quantite"] >= 0 && $_POST["quantite"] != "" && $_POST["prixMin"] >= 0 && $_POST["prixMin"] != "" && $_POST["prixMax"] > 0 && $_POST["prixMax"] > $_POST["prixMin"] || $_POST["quantite"] >= 0 && $_POST["quantite"] != "" && $_POST["prixMin"] == "" && $_POST["prixMax"] == "" || $_POST["quantite"] == "" && $_POST["prixMin"] >= 0 && $_POST["prixMin"] != "" && $_POST["prixMax"] > 0 && $_POST["prixMax"] > $_POST["prixMin"]) {
                     $recherch_reussi = 1;
