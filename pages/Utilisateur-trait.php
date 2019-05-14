@@ -1,8 +1,10 @@
 <?php
+
     session_start();
     $existeDeja = 0;
     $adminprincipal = 0;
     $nouv_statut="";
+    $changementStat=0;
     $_SESSION["existeDeja"] = false;
     $_SESSION["erreur"] = false;
     $serveur = "localhost";
@@ -15,23 +17,27 @@
         $donnees = strip_tags($donnees); //neutralise le code html et php
         return $donnees;
     }
-    $aChanger = securisation($_GET["login"]);
-    $nom = securisation($_POST["nom"]);
-    $login = securisation($_POST["login"]);
-    $telephone = securisation($_POST["telephone"]);
-    $Adresse = securisation($_POST["Adresse"]);
-    $email = securisation($_POST["email"]);
-    $MDP = securisation($_POST["MDP"]);
-    $MDPconf = securisation($_POST["MDPconf"]);
-    $profil = securisation($_POST["profil"]);
-
-    if ($aChanger != "Abdou" && !empty($aChanger)) {
-        $changementStat = 1;
-    } 
-    elseif ($aChanger == "Abdou") {
-        $adminprincipal = 1;
+    $login="";
+    if (isset($_POST["valider"])) {
+        $nom = securisation($_POST["nom"]);
+        $login = securisation($_POST["login"]);
+        $telephone = securisation($_POST["telephone"]);
+        $Adresse = securisation($_POST["Adresse"]);
+        $email = securisation($_POST["email"]);
+        $MDP = securisation($_POST["MDP"]);
+        $MDPconf = securisation($_POST["MDPconf"]);
+        $profil = securisation($_POST["profil"]);
+        $tatut= "actif";
     }
-
+    if (isset($_GET["login"])) {
+        $aChanger = securisation($_GET["login"]);
+        if ($aChanger != "Abdou" && !empty($aChanger)) {
+            $changementStat = 1;
+        } 
+        elseif ($aChanger == "Abdou") {
+            $adminprincipal = 1;
+        }
+    }
     try {
         $connexion = new PDO("mysql:host=$serveur;dbname=mini-projet-php;charset=utf8", $Monlogin, $Monpass); //se connecte au serveur mysquel
         $connexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); //setAttribute — Configure l'attribut PDO $connexion
@@ -41,11 +47,12 @@
         $requete->execute();
         $log_utilisateurs=$requete->fetchAll();
         for($i=0;$i<count($log_utilisateurs);$i++){
-            if( $log_utilisateurs[0][$i]== $login){
+            if( $log_utilisateurs[$i][0]== $login){
                 $existeDeja = 1;
                 $_SESSION["existeDeja"] = true; 
             }
         }
+        
         /////////////----Fin existe deja---///////////////////
        
 
@@ -61,7 +68,7 @@
             $requete->bindParam( ":Adresse", $Adresse);
             $requete->bindParam( ":Telephone", $telephone);
             $requete->bindParam( ":Profil", $profil);
-            $requete->bindParam( ":Statut", "actif");
+            $requete->bindParam( ":Statut", $tatut);
             $requete->execute(); //excecute la requete qui a été preparé
         }
         /////////////////////////////----Fin Ajout ---///////////////////
@@ -99,7 +106,6 @@
         echo "ECHEC : " . $e->getMessage(); //en cas d erreur lors de la connexion à la base de données mysql
         exit(); //arreter le code
     }
-
 
     
     

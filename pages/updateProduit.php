@@ -45,10 +45,21 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
                 // fclose($monfichier);
                 $prodExiste = 0;
                 $Modif_reussi = 0;
+                $nouvPro = "";
+                $nouvQuant = 0;
+                $nouvPrix = 0;
+                $totalQuant = 0;
+                $Totprix = 0;
+                $totalMont = 0;
                 $serveur = "localhost";
                 $Monlogin = "root";
                 $Monpass = "101419";
-                $nouvPro = $_POST["produit"];
+                if (isset($_POST["valider"])) {
+                    $nouvPro = $_POST["produit"];
+                    $nouvQuant = $_POST["quantite"];
+                    $nouvPrix = $_POST["prix"];
+                }
+
 
                 try {
                     $connexion = new PDO("mysql:host=$serveur;dbname=mini-projet-php;charset=utf8", $Monlogin, $Monpass); //se connecte au serveur mysquel
@@ -101,7 +112,7 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
                 }
                 echo '>'; //lors du chargement de la page
                 echo '</div>';
-                $nouvQuant = $_POST["quantite"];
+
 
                 echo '<div class="row">
                             <div class="col-md-2"></div>
@@ -123,7 +134,7 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
                 echo '>'; //lors du chargement de la page
                 echo '</div>';
 
-                $nouvPrix = $_POST["prix"];
+
                 echo '<div class="row">
                             <div class="col-md-2"></div><input class="form-control col-md-8 espace ';
                 if (isset($_POST["valider"]) && $nouvPrix < 100 && $nouvPrix != "") {
@@ -169,34 +180,34 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
             try {
                 $connexion = new PDO("mysql:host=$serveur;dbname=mini-projet-php;charset=utf8", $Monlogin, $Monpass); //se connecte au serveur mysquel
                 $connexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); //setAttribute — Configure l'attribut PDO $connexion
+                if (isset($_POST["valider"])) {
+                    if ($_POST["quantite"] >= 0 && !empty($_POST["quantite"]) && $prodExiste == 1) { //pour ne pas ecraser l'ancienne valeur si on ne souhaite pas modifier la quantité (mais uniquement le prix)
+                        $codemysql = "UPDATE `Liste-produits` SET Quantite='$nouvQuant' WHERE Nom='$nouvPro' "; //modification de la quantité
+                        $requete = $connexion->prepare($codemysql);
+                        $requete->execute();
+                    }
 
-                if ($_POST["quantite"] >= 0 && !empty($_POST["quantite"]) && $prodExiste == 1) { //pour ne pas ecraser l'ancienne valeur si on ne souhaite pas modifier la quantité (mais uniquement le prix)
-                    $codemysql = "UPDATE `Liste-produits` SET Quantite='$nouvQuant' WHERE Nom='$nouvPro' "; //modification de la quantité
-                    $requete = $connexion->prepare($codemysql);
-                    $requete->execute();
+                    if ($_POST["prix"] >= 100 && $prodExiste == 1) { //pour ne pas ecraser l'ancienne valeur si on ne souhaite pas modifier le prix (mais uniquement la quantité)
+                        $codemysql = "UPDATE `Liste-produits` SET Prix='$nouvPrix' WHERE Nom='$nouvPro' "; //modification du prix
+                        $requete = $connexion->prepare($codemysql);
+                        $requete->execute();
+                    }
+
+                    if ($_POST["quantite"] >= 0 && !empty($_POST["quantite"]) && $prodExiste == 1 || $_POST["prix"] >= 100 && $prodExiste == 1) {
+                        $codemysql = "SELECT Quantite,Prix FROM `Liste-produits`  WHERE Nom='$nouvPro' "; //recuperation du prix et de la quantité
+                        $requete = $connexion->prepare($codemysql);
+                        $requete->execute();
+                        $quantite_prix = $requete->fetchAll();
+
+                        $quantité_mod = $quantite_prix[0]["Quantite"]; //recuperation de la quantité
+                        $prix_mod = $quantite_prix[0]["Prix"]; //recuperation du prix
+                        $montant_mor = $quantité_mod * $prix_mod; //mise à jour du montant
+
+                        $codemysql = "UPDATE `Liste-produits` SET Montant='$montant_mor' WHERE Nom='$nouvPro' "; //modification du montant
+                        $requete = $connexion->prepare($codemysql);
+                        $requete->execute();
+                    }
                 }
-
-                if ($_POST["prix"] >= 100 && $prodExiste == 1) { //pour ne pas ecraser l'ancienne valeur si on ne souhaite pas modifier le prix (mais uniquement la quantité)
-                    $codemysql = "UPDATE `Liste-produits` SET Prix='$nouvPrix' WHERE Nom='$nouvPro' "; //modification du prix
-                    $requete = $connexion->prepare($codemysql);
-                    $requete->execute();
-                }
-                
-                if ($_POST["quantite"] >= 0 && !empty($_POST["quantite"]) && $prodExiste == 1 || $_POST["prix"] >= 100 && $prodExiste == 1) {
-                    $codemysql = "SELECT Quantite,Prix FROM `Liste-produits`  WHERE Nom='$nouvPro' "; //recuperation du prix et de la quantité
-                    $requete = $connexion->prepare($codemysql);
-                    $requete->execute();
-                    $quantite_prix = $requete->fetchAll();
-
-                    $quantité_mod = $quantite_prix[0]["Quantite"]; //recuperation de la quantité
-                    $prix_mod = $quantite_prix[0]["Prix"]; //recuperation du prix
-                    $montant_mor = $quantité_mod * $prix_mod; //mise à jour du montant
-
-                    $codemysql = "UPDATE `Liste-produits` SET Montant='$montant_mor' WHERE Nom='$nouvPro' "; //modification du montant
-                    $requete = $connexion->prepare($codemysql);
-                    $requete->execute();
-                }
-
                 //////////////////////////////////------Debut affichage-----//////////////////////////
                 $codemysql = "SELECT * FROM `Liste-produits`";
                 $requete = $connexion->prepare($codemysql);

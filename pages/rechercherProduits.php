@@ -40,11 +40,18 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
             <div class="col-md-6 bor">
                 <?php
                 $recherch_reussi = 0;
-                if ($_POST["quantite"] >= 0 && $_POST["quantite"] != "" && $_POST["prixMin"] >= 0 && $_POST["prixMin"] != "" && $_POST["prixMax"] > 0 && $_POST["prixMax"] > $_POST["prixMin"] || $_POST["quantite"] >= 0 && $_POST["quantite"] != "" && $_POST["prixMin"] == "" && $_POST["prixMax"] == "" || $_POST["quantite"] == "" && $_POST["prixMin"] >= 0 && $_POST["prixMin"] != "" && $_POST["prixMax"] > 0 && $_POST["prixMax"] > $_POST["prixMin"]) {
-                    $recherch_reussi = 1;
-                }
-                $seuilQuantite = $_POST["quantite"]; //recuperation du seuil (quantité)
+                $seuilQuantite = 0;
+                $seuilPrixMin = 0;
+                $seuilPrixMax = 0;
 
+                if (isset($_POST["valider"])) {
+                    if ($_POST["quantite"] >= 0 && $_POST["quantite"] != "" && $_POST["prixMin"] >= 0 && $_POST["prixMin"] != "" && $_POST["prixMax"] > 0 && $_POST["prixMax"] > $_POST["prixMin"] || $_POST["quantite"] >= 0 && $_POST["quantite"] != "" && $_POST["prixMin"] == "" && $_POST["prixMax"] == "" || $_POST["quantite"] == "" && $_POST["prixMin"] >= 0 && $_POST["prixMin"] != "" && $_POST["prixMax"] > 0 && $_POST["prixMax"] > $_POST["prixMin"]) {
+                        $recherch_reussi = 1;
+                    }
+                    $seuilPrixMax = $_POST["prixMax"]; //recuperation du seuil (prixMax) = $_POST["quantite"]; //recuperation du seuil (quantité)
+                    $seuilPrixMin = $_POST["prixMin"]; //recuperation du seuil (prixMin)
+                    $seuilPrixMax = $_POST["prixMax"]; //recuperation du seuil (prixMax)
+                }
                 echo '<div class="row">
                             <div class="col-md-2"></div>
                             <input class="form-control col-md-8 espace ';
@@ -62,7 +69,7 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
                 echo '>'; //lors du chargement de la page
                 echo '</div>';
 
-                $seuilPrixMin = $_POST["prixMin"]; //recuperation du seuil (prixMin)
+
                 echo '<div class="row">
                             <div class="col-md-2"></div><input class="form-control col-md-8 espace ';
                 if (isset($_POST["valider"]) && $seuilPrixMin < 0 && $seuilPrixMin != "" || isset($_POST["valider"]) && $_POST["prixMax"] >= 0 && $_POST["prixMax"] != 0 && $seuilPrixMin == "") {
@@ -71,7 +78,7 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
                 echo '" type="number" id="prixMin" name="prixMin"';
                 if ($seuilPrixMin < 0 && $seuilPrixMin != "") {
                     echo ' placeholder="Impossible car ' . $seuilPrixMin . ' est inférieur à 0"';
-                } elseif ($_POST["prixMax"] >= 0 && $_POST["prixMax"] != 0 && $seuilPrixMin == "") {
+                } elseif ($seuilPrixMax  >= 0 && $seuilPrixMax  != 0 && $seuilPrixMin == "") {
                     echo ' placeholder="Remplir la borne supérieur "';
                 } elseif ($seuilPrixMin >= 0 && isset($_POST["valider"]) && $seuilPrixMin != "") {
                     echo ' placeholder="Prix (Bonre inférieur) :" value="' . $seuilPrixMin . '"';
@@ -80,7 +87,7 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
                 }
                 echo '>'; //lors du chargement de la page
                 echo '</div>';
-                $seuilPrixMax = $_POST["prixMax"]; //recuperation du seuil (prixMax)
+
                 echo '<div class="row">
                             <div class="col-md-2"></div><input class="form-control col-md-8 espace ';
                 if (isset($_POST["valider"]) && $seuilPrixMax < 0 && $seuilPrixMax != "" || isset($_POST["valider"]) && $seuilPrixMax < $seuilPrixMin && $seuilPrixMax != "" || isset($_POST["valider"]) && $seuilPrixMin >= 0 && $seuilPrixMin != 0 && $seuilPrixMax == "") {
@@ -109,6 +116,10 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
         </form>
         <table class="col-12 liste table">
             <?php
+            $totalQuant =0;
+            $Totprix =0;
+            $prixMoy = 0;
+            $totalMont =0;
             $serveur = "localhost";
             $Monlogin = "root";
             $Monpass = "101419";
@@ -157,10 +168,9 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
                             </tr>';
                             $totalQuant += $laQuantite; //calcul le total des quantités
                             $Totprix += $lePrix; //calcul le total des prix pour calculer la moyenne
-                            $prixMoy = $Totprix / ($i +1);
+                            $prixMoy = $Totprix / ($i + 1);
                             $totalMont += $leMontant;
-                        } 
-                        elseif ($seuilQuantite == "" && $lePrix >= $seuilPrixMin && $lePrix <= $seuilPrixMax && $seuilPrixMin >= 0 && $seuilPrixMax >= 0) {
+                        } elseif ($seuilQuantite == "" && $lePrix >= $seuilPrixMin && $lePrix <= $seuilPrixMax && $seuilPrixMin >= 0 && $seuilPrixMax >= 0) {
                             if ($laQuantite >= 10) { //pour savoir les produit à renouveller
                                 echo
                                     '<tr class="row">';
@@ -176,10 +186,9 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
                             </tr>';
                             $totalQuant += $laQuantite; //calcul le total des quantités
                             $Totprix += $lePrix; //calcul le total des prix pour calculer la moyenne
-                            $prixMoy = $Totprix / ($i +1);
+                            $prixMoy = $Totprix / ($i + 1);
                             $totalMont += $leMontant;
-                        } 
-                        elseif ($seuilQuantite == "" && $lePrix >= $seuilPrixMin && $seuilPrixMax == "" && $seuilPrixMin >= 0) {
+                        } elseif ($seuilQuantite == "" && $lePrix >= $seuilPrixMin && $seuilPrixMax == "" && $seuilPrixMin >= 0) {
                             if ($laQuantite >= 10) { //pour savoir les produit à renouveller
                                 echo
                                     '<tr class="row">';
@@ -195,10 +204,9 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
                             </tr>';
                             $totalQuant += $laQuantite; //calcul le total des quantités
                             $Totprix += $lePrix; //calcul le total des prix pour calculer la moyenne
-                            $prixMoy = $Totprix / ($i +1);
+                            $prixMoy = $Totprix / ($i + 1);
                             $totalMont += $leMontant;
-                        } 
-                        elseif ($seuilQuantite == "" && $seuilPrixMin == "" && $lePrix <= $seuilPrixMax && $seuilPrixMax >= 0) {
+                        } elseif ($seuilQuantite == "" && $seuilPrixMin == "" && $lePrix <= $seuilPrixMax && $seuilPrixMax >= 0) {
                             if ($laQuantite >= 10) { //pour savoir les produit à renouveller
                                 echo
                                     '<tr class="row">';
@@ -214,10 +222,9 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
                             </tr>';
                             $totalQuant += $laQuantite; //calcul le total des quantités
                             $Totprix += $lePrix; //calcul le total des prix pour calculer la moyenne
-                            $prixMoy = $Totprix / ($i +1);
+                            $prixMoy = $Totprix / ($i + 1);
                             $totalMont += $leMontant;
-                        } 
-                        elseif ($laQuantite >= $seuilQuantite && $seuilPrixMin == "" && $seuilPrixMax == "" && $seuilQuantite >= 0) { //permet d'afficher les produits qui ont une quantité et un prix superieurs au seuil
+                        } elseif ($laQuantite >= $seuilQuantite && $seuilPrixMin == "" && $seuilPrixMax == "" && $seuilQuantite >= 0) { //permet d'afficher les produits qui ont une quantité et un prix superieurs au seuil
                             if ($laQuantite >= 10) { //pour savoir les produit à renouveller
                                 echo
                                     '<tr class="row">';
@@ -233,10 +240,9 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
                             </tr>';
                             $totalQuant += $laQuantite; //calcul le total des quantités
                             $Totprix += $lePrix; //calcul le total des prix pour calculer la moyenne
-                            $prixMoy = $Totprix / ($i +1);
+                            $prixMoy = $Totprix / ($i + 1);
                             $totalMont += $leMontant;
                         }
-
                     }
                     echo
                         '<tr class="row">

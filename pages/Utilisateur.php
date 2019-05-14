@@ -78,6 +78,7 @@ if ($_SESSION["profil"] != "admin") {
                     <input type="submit" class="form-control col-md-6 espace" value="Connexion" name="valider">
                 </div>
                 <?php
+                if (isset($_POST["valider"])) {
                     if ($_SESSION["erreur"] == true) { //si errer lors de la creation de l utilisateur
                         echo "
                                 <div class='row'>";
@@ -91,6 +92,7 @@ if ($_SESSION["profil"] != "admin") {
                         echo "!!</p>
                                 </div>";
                     }
+                }
                 ?>
             </div>
         </form>
@@ -106,28 +108,28 @@ if ($_SESSION["profil"] != "admin") {
                 </tr>
             </thead>
             <?php
-                //////////////////////////////////////////-----AFFICHE TABLEAU----//////////////////
-                $serveur = "localhost";
-                $Monlogin = "root";
-                $Monpass = "101419";
+            //////////////////////////////////////////-----AFFICHE TABLEAU----//////////////////
+            $serveur = "localhost";
+            $Monlogin = "root";
+            $Monpass = "101419";
 
-                try {
-                    $connexion = new PDO("mysql:host=$serveur;dbname=mini-projet-php;charset=utf8", $Monlogin, $Monpass); //se connecte au serveur mysquel
-                    $connexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); //setAttribute — Configure l'attribut PDO $connexion
-                    $codemysql = "SELECT * FROM utilisateurs";
-                    $requete = $connexion->prepare($codemysql);
-                    $requete->execute();
-                    $utilisateurs = $requete->fetchAll();
-                } catch (PDOException $e) {
-                    echo "ECHEC : " . $e->getMessage(); //en cas d erreur lors de la connexion à la base de données mysql
-                    exit(); //arreter le code
-                }
+            try {
+                $connexion = new PDO("mysql:host=$serveur;dbname=mini-projet-php;charset=utf8", $Monlogin, $Monpass); //se connecte au serveur mysquel
+                $connexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); //setAttribute — Configure l'attribut PDO $connexion
+                $codemysql = "SELECT * FROM utilisateurs";
+                $requete = $connexion->prepare($codemysql);
+                $requete->execute();
+                $utilisateurs = $requete->fetchAll();
+            } catch (PDOException $e) {
+                echo "ECHEC : " . $e->getMessage(); //en cas d erreur lors de la connexion à la base de données mysql
+                exit(); //arreter le code
+            }
 
-                for ($i = 0; $i < count($utilisateurs); $i++) {
+            for ($i = 0; $i < count($utilisateurs); $i++) {
 
-                    if ($utilisateurs[0] != "") {
-                        echo
-                            '<tr class="row">
+                if ($utilisateurs[0] != "") {
+                    echo
+                        '<tr class="row">
                                 <td class="col-md-2 text-center">' . $utilisateurs[$i]["Login"] . '</td>
                                 <td class="col-md-2 text-center">' . $utilisateurs[$i]["Nom"] . '</td>
                                 <td class="col-md-2 text-center">' . $utilisateurs[$i]["Telephone"] . '</td>
@@ -135,16 +137,16 @@ if ($_SESSION["profil"] != "admin") {
                                 <td class="col-md-2 text-center">' . $utilisateurs[$i]["Profil"] . '</td>
                                 <td class="col-md-2 text-center">
                                     <a href="Utilisateur-trait.php?login=' . $utilisateurs[$i]["Login"] . '"><button class="mesBout ';
-                        if ($utilisateurs[$i]["Statut"] == "Bloquer") {
-                            echo "rougMoins";
-                        }
-                        echo '"id="' . $utilisateurs[$i]["Login"] . '">' . $utilisateurs[$i]["Statut"] . '</button>
+                    if ($utilisateurs[$i]["Statut"] == "Bloquer") {
+                        echo "rougMoins";
+                    }
+                    echo '"id="' . $utilisateurs[$i]["Login"] . '">' . $utilisateurs[$i]["Statut"] . '</button>
                                     </a>
                                 </td>
                             </tr>';
-                    }
                 }
-                //////////////////////////////////////////-----AFFICHE TABLEAU----//////////////////
+            }
+            //////////////////////////////////////////-----AFFICHE TABLEAU----//////////////////
             ?>
         </table>
     </section>

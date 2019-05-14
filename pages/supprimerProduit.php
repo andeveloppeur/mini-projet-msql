@@ -40,33 +40,37 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
             <div class="col-md-6 bor">
                 <?php
                 $prodExiste = 0;
-
+                $totalQuant = 0;
+                $Totprix = 0;
+                $totalMont = 0;
                 $serveur = "localhost";
                 $Monlogin = "root";
                 $Monpass = "101419";
-                $supPro = $_POST["produit"];
+                if (isset($_POST["valider"])) {
+                    $supPro = $_POST["produit"];
 
-                try {
-                    $connexion = new PDO("mysql:host=$serveur;dbname=mini-projet-php;charset=utf8", $Monlogin, $Monpass); //se connecte au serveur mysquel
-                    $connexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); //setAttribute — Configure l'attribut PDO $connexion
-                    $codemysql = "SELECT * FROM `Liste-produits`";
-                    $requete = $connexion->prepare($codemysql);
-                    $requete->execute();
-                    $produits = $requete->fetchAll();
-                    for ($i = 0; $i < count($produits); $i++) { //casse
-                        if (!strcasecmp($supPro, $produits[$i]["Nom"])) { //pour gerer la casse
-                            $supPro = $produits[$i]["Nom"];
+                    try {
+                        $connexion = new PDO("mysql:host=$serveur;dbname=mini-projet-php;charset=utf8", $Monlogin, $Monpass); //se connecte au serveur mysquel
+                        $connexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); //setAttribute — Configure l'attribut PDO $connexion
+                        $codemysql = "SELECT * FROM `Liste-produits`";
+                        $requete = $connexion->prepare($codemysql);
+                        $requete->execute();
+                        $produits = $requete->fetchAll();
+                        for ($i = 0; $i < count($produits); $i++) { //casse
+                            if (!strcasecmp($supPro, $produits[$i]["Nom"])) { //pour gerer la casse
+                                $supPro = $produits[$i]["Nom"];
+                            }
+                            if ($produits[$i]["Nom"] == $supPro) { //verifie si le produit à ajouter n existe pas deja
+                                $prodExiste = 1; //si existe deja le variable $prodExiste=1 cela nous permettra de bloquer l'ajout
+                            }
                         }
-                        if ($produits[$i]["Nom"] == $supPro) { //verifie si le produit à ajouter n existe pas deja
-                            $prodExiste = 1; //si existe deja le variable $prodExiste=1 cela nous permettra de bloquer l'ajout
+                        if ($prodExiste == 0 && $supPro != "" && $_POST["quantite"] >= 0 && $_POST["prix"] >= 100) { //pour reinitialiser les placeholders
+                            $ajout_reussi = 1;
                         }
+                    } catch (PDOException $e) {
+                        echo "ECHEC : " . $e->getMessage(); //en cas d erreur lors de la connexion à la base de données mysql
+                        exit(); //arreter le code
                     }
-                    if ($prodExiste == 0 && $supPro != "" && $_POST["quantite"] >= 0 && $_POST["prix"] >= 100) { //pour reinitialiser les placeholders
-                        $ajout_reussi = 1;
-                    }
-                } catch (PDOException $e) {
-                    echo "ECHEC : " . $e->getMessage(); //en cas d erreur lors de la connexion à la base de données mysql
-                    exit(); //arreter le code
                 }
                 echo '<div class="row">
                         <div class="col-md-2"></div>
@@ -164,9 +168,8 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
                     <td class="col-md-2 text-center gras">' . $prixMoy . '</td>
                     <td class="col-md-3 text-center gras">' . format($totalMont) . '</td>
                     </tr>';
-            ////////////////////////////////------Fin affichage-----//////////////////////////
-            } 
-            catch (PDOException $e) {
+                ////////////////////////////////------Fin affichage-----//////////////////////////
+            } catch (PDOException $e) {
                 echo "ECHEC : " . $e->getMessage(); //en cas d erreur lors de la connexion à la base de données mysql
             }
 

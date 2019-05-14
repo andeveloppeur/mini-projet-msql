@@ -47,6 +47,10 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
                 </tr>
             </thead>
             <?php
+            $totalQuant =0;
+            $Totprix =0;
+            $prixMoy = 0;
+            $totalMont =0;
             $serveur = "localhost";
             $Monlogin = "root";
             $Monpass = "101419";

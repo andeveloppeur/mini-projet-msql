@@ -1,9 +1,5 @@
 <?php
 session_start();
-if ($_SESSION['ouvert'] == 1) {
-    session_destroy(); /*lorsque la session est ouvert 
-    et qu on se deconnecte on revient sur cette page et la session est detruite*/
-}
 ?>
 <!DOCTYPE html>
 <html lang="FR-fr">
@@ -39,7 +35,8 @@ if ($_SESSION['ouvert'] == 1) {
                     <input type="submit" class="form-control col-md-6 espace" value="Connexion" name="submit">
                 </div>
                 <?php
-                    if ($_SESSION["erreur-auth"]==true) { //verification du login et du MDP
+                if (isset($_POST["valider"])) {
+                    if ($_SESSION["erreur-auth"] == true) { //verification du login et du MDP
                         echo "
                                         <div class='row'>
                                         <div class=col-md-3></div>
@@ -52,6 +49,7 @@ if ($_SESSION['ouvert'] == 1) {
                         echo "!!</p>
                                         </div>";
                     }
+                }
                 ?>
             </div>
         </form>

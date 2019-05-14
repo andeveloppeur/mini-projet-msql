@@ -27,9 +27,9 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
         <a class="nav-link nav-item" href="updateProduit.php">Modifier</a>
         <a class="nav-link nav-item" href="supprimerProduit.php">Supprimer</a>
         <?php
-            if ($_SESSION["profil"] == "admin") {
-                echo '<a class="nav-link nav-item" href="Utilisateur.php">Utilisateurs</a>';
-            }
+        if ($_SESSION["profil"] == "admin") {
+            echo '<a class="nav-link nav-item" href="Utilisateur.php">Utilisateurs</a>';
+        }
         ?>
         <a class="nav-link nav-item" href="../index.php">Déconnection</a>
     </nav>
@@ -45,12 +45,22 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
             <div class="col-md-3"></div>
             <div class="col-md-6 bor">
                 <?php
-                    $prodExiste = 0;
-                    $ajout_reussi = 0;
-                    $serveur = "localhost";
-                    $Monlogin = "root";
-                    $Monpass = "101419";
+                $prodExiste = 0;
+                $ajout_reussi = 0;
+                $nouvPro = "";
+                $nouvQuant = 0;
+                $nouvPrix = 0;
+                $totalQuant=0;
+                $Totprix=0;
+                $totalMont=0;
+                $serveur = "localhost";
+                $Monlogin = "root";
+                $Monpass = "101419";
+                if (isset($_POST["valider"])) {
+
                     $nouvPro = $_POST["produit"];
+                    $nouvQuant = $_POST["quantite"];
+                    $nouvPrix = $_POST["prix"];
 
                     try {
                         $connexion = new PDO("mysql:host=$serveur;dbname=mini-projet-php;charset=utf8", $Monlogin, $Monpass); //se connecte au serveur mysquel
@@ -74,77 +84,78 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
                         echo "ECHEC : " . $e->getMessage(); //en cas d erreur lors de la connexion à la base de données mysql
                         exit(); //arreter le code
                     }
-                    //////////////////////////////////----validiter des données et gestion des inputs----////////////////////
-                    echo '<div class="row">
+                }
+                //////////////////////////////////----validiter des données et gestion des inputs----////////////////////
+                echo '<div class="row">
                             <div class="col-md-2"></div>
                             <input class="form-control col-md-8 espace ';
-                    if (isset($_POST["valider"]) && $nouvPro == "" || $prodExiste == 1) {
-                        echo 'rougMoins';
-                    }
-                    echo '" type="text" id="produit" name="produit"';
-                    if (isset($_POST["valider"]) && $nouvPro == "") {
-                        echo 'placeholder="Remplir le nom du produit"';
-                    } //si on envoi ajoute un produit sans remplir le nom du produit
-                    elseif ($prodExiste == 1) {
-                        echo ' placeholder="' . $nouvPro . ' existe déja" value=""';
-                    } //si le produit existe deja
-                    elseif ($ajout_reussi == 1) {
-                        echo ' placeholder="Nom produit" value=""';
-                    } //si ajout reussi
-                    elseif (isset($_POST["valider"]) && $nouvPro != "" && $prodExiste == 0) {
-                        echo 'value="' . $nouvPro . '"';
-                    } //si il y a une erreur dans la quantité ou le prix garder le nom du produit saisi
-                    elseif ($prodExiste == 0) {
-                        echo ' placeholder="Nom produit" value=""';
-                    }
-                    echo '>'; //lors du chargement de la page
-                    echo '</div>';
-                    $nouvQuant = $_POST["quantite"];
+                if (isset($_POST["valider"]) && $nouvPro == "" || $prodExiste == 1) {
+                    echo 'rougMoins';
+                }
+                echo '" type="text" id="produit" name="produit"';
+                if (isset($_POST["valider"]) && $nouvPro == "") {
+                    echo 'placeholder="Remplir le nom du produit"';
+                } //si on envoi ajoute un produit sans remplir le nom du produit
+                elseif ($prodExiste == 1) {
+                    echo ' placeholder="' . $nouvPro . ' existe déja" value=""';
+                } //si le produit existe deja
+                elseif ($ajout_reussi == 1) {
+                    echo ' placeholder="Nom produit" value=""';
+                } //si ajout reussi
+                elseif (isset($_POST["valider"]) && $nouvPro != "" && $prodExiste == 0) {
+                    echo 'value="' . $nouvPro . '"';
+                } //si il y a une erreur dans la quantité ou le prix garder le nom du produit saisi
+                elseif ($prodExiste == 0) {
+                    echo ' placeholder="Nom produit" value=""';
+                }
+                echo '>'; //lors du chargement de la page
+                echo '</div>';
 
-                    echo '<div class="row">
+
+                echo '<div class="row">
                                 <div class="col-md-2"></div>
                                 <input class="form-control col-md-8 espace ';
-                    if (isset($_POST["valider"]) && $nouvQuant < 0 || isset($_POST["valider"]) && $nouvQuant == "") {
-                        echo 'rougMoins';
-                    }
-                    echo '" type="number" id="quantite" name="quantite"';
-                    if ($nouvQuant == "" && isset($_POST["valider"])) {
-                        echo ' placeholder="Remplir la quantité"';
-                    } elseif ($nouvQuant < 0 && $nouvQuant != "") {
-                        echo ' placeholder="Impossible car ' . $nouvQuant . ' est inférieur à 0"';
-                    } elseif ($ajout_reussi == 1) {
-                        echo ' placeholder="Quantité" value=""';
-                    } //si ajout reussi
-                    elseif ($nouvQuant >= 0 && isset($_POST["valider"])) {
-                        echo ' value="' . $nouvQuant . '"';
-                    } elseif ($nouvQuant == "") {
-                        echo ' placeholder="Quantité" value=""';
-                    }
-                    echo '>'; //lors du chargement de la page
-                    echo '</div>';
+                if (isset($_POST["valider"]) && $nouvQuant < 0 || isset($_POST["valider"]) && $nouvQuant == "") {
+                    echo 'rougMoins';
+                }
+                echo '" type="number" id="quantite" name="quantite"';
+                if ($nouvQuant == "" && isset($_POST["valider"])) {
+                    echo ' placeholder="Remplir la quantité"';
+                } elseif ($nouvQuant < 0 && $nouvQuant != "") {
+                    echo ' placeholder="Impossible car ' . $nouvQuant . ' est inférieur à 0"';
+                } elseif ($ajout_reussi == 1) {
+                    echo ' placeholder="Quantité" value=""';
+                } //si ajout reussi
+                elseif ($nouvQuant >= 0 && isset($_POST["valider"])) {
+                    echo ' value="' . $nouvQuant . '"';
+                } elseif ($nouvQuant == "") {
+                    echo ' placeholder="Quantité" value=""';
+                }
+                echo '>'; //lors du chargement de la page
+                echo '</div>';
 
-                    $nouvPrix = $_POST["prix"];
-                    echo '<div class="row">
+
+                echo '<div class="row">
                                 <div class="col-md-2"></div><input class="form-control col-md-8 espace ';
-                    if (isset($_POST["valider"]) && $nouvPrix < 100 || isset($_POST["valider"]) && $nouvPrix == "") {
-                        echo 'rougMoins';
-                    }
-                    echo '" type="number" id="prix" name="prix"';
-                    if ($nouvPrix == "" && isset($_POST["valider"])) {
-                        echo ' placeholder="Remplir le prix"';
-                    } elseif ($nouvPrix < 100 && $nouvPrix != "") {
-                        echo ' placeholder="Impossible car ' . $nouvPrix . ' est inférieur à 100"';
-                    } elseif ($ajout_reussi == 1) {
-                        echo ' placeholder="Prix" value=""';
-                    } //si ajout reussi
-                    elseif ($nouvPrix >= 100 && isset($_POST["valider"])) {
-                        echo ' value="' . $nouvPrix . '"';
-                    } elseif ($nouvPrix == "") {
-                        echo ' placeholder="Prix" value=""';
-                    }
-                    echo '>'; //lors du chargement de la page
-                    echo '</div>';
-                    //////////////////////////////////----Fin validiter des données et gestion des inputs----////////////////////
+                if (isset($_POST["valider"]) && $nouvPrix < 100 || isset($_POST["valider"]) && $nouvPrix == "") {
+                    echo 'rougMoins';
+                }
+                echo '" type="number" id="prix" name="prix"';
+                if ($nouvPrix == "" && isset($_POST["valider"])) {
+                    echo ' placeholder="Remplir le prix"';
+                } elseif ($nouvPrix < 100 && $nouvPrix != "") {
+                    echo ' placeholder="Impossible car ' . $nouvPrix . ' est inférieur à 100"';
+                } elseif ($ajout_reussi == 1) {
+                    echo ' placeholder="Prix" value=""';
+                } //si ajout reussi
+                elseif ($nouvPrix >= 100 && isset($_POST["valider"])) {
+                    echo ' value="' . $nouvPrix . '"';
+                } elseif ($nouvPrix == "") {
+                    echo ' placeholder="Prix" value=""';
+                }
+                echo '>'; //lors du chargement de la page
+                echo '</div>';
+                //////////////////////////////////----Fin validiter des données et gestion des inputs----////////////////////
                 ?>
                 <div class="row">
                     <div class="col-md-3"></div>
