@@ -48,9 +48,18 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
                     if ($_POST["quantite"] >= 0 && $_POST["quantite"] != "" && $_POST["prixMin"] >= 0 && $_POST["prixMin"] != "" && $_POST["prixMax"] > 0 && $_POST["prixMax"] > $_POST["prixMin"] || $_POST["quantite"] >= 0 && $_POST["quantite"] != "" && $_POST["prixMin"] == "" && $_POST["prixMax"] == "" || $_POST["quantite"] == "" && $_POST["prixMin"] >= 0 && $_POST["prixMin"] != "" && $_POST["prixMax"] > 0 && $_POST["prixMax"] > $_POST["prixMin"]) {
                         $recherch_reussi = 1;
                     }
-                    $seuilPrixMax = $_POST["prixMax"]; //recuperation du seuil (prixMax) = $_POST["quantite"]; //recuperation du seuil (quantité)
-                    $seuilPrixMin = $_POST["prixMin"]; //recuperation du seuil (prixMin)
-                    $seuilPrixMax = $_POST["prixMax"]; //recuperation du seuil (prixMax)
+                    function securisation($donnees)
+                    {
+                        $donnees = trim($donnees); //trim supprime les espaces (ou d'autres caractères) en début et fin de chaîne
+                        $donnees = stripslashes($donnees); //Supprime les antislashs d'une chaîne
+                        $donnees = strip_tags($donnees); //neutralise le code html et php
+                        $donnees = mysql_real_escape_string($donnees); // elle neutralise tous les caractères susceptibles d'être à l'origine d'une injection SQL.
+                        $donnees = addcslashes($donnees, '%_'); //pour gerer les injections sql qui visent notamment à surcharger notre serveur en alourdissant notre requête. Ce type d'injection utilise les caractères % et _.
+                        return $donnees;
+                    }
+                    $seuilPrixMax = securisation($_POST["prixMax"]); //recuperation du seuil (prixMax) = $_POST["quantite"]; //recuperation du seuil (quantité)
+                    $seuilPrixMin = securisation($_POST["prixMin"]); //recuperation du seuil (prixMin)
+                    $seuilPrixMax = securisation($_POST["prixMax"]); //recuperation du seuil (prixMax)
                 }
                 echo '<div class="row">
                             <div class="col-md-2"></div>
@@ -116,10 +125,10 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
         </form>
         <table class="col-12 liste table">
             <?php
-            $totalQuant =0;
-            $Totprix =0;
+            $totalQuant = 0;
+            $Totprix = 0;
             $prixMoy = 0;
-            $totalMont =0;
+            $totalMont = 0;
             $serveur = "localhost";
             $Monlogin = "root";
             $Monpass = "101419";

@@ -46,8 +46,17 @@ if ($_SESSION["profil"] != "admin" && $_SESSION["profil"] != "user") {
                 $serveur = "localhost";
                 $Monlogin = "root";
                 $Monpass = "101419";
+                function securisation($donnees)
+                {
+                    $donnees = trim($donnees); //trim supprime les espaces (ou d'autres caractères) en début et fin de chaîne
+                    $donnees = stripslashes($donnees); //Supprime les antislashs d'une chaîne
+                    $donnees = strip_tags($donnees); //neutralise le code html et php
+                    $donnees = mysql_real_escape_string($donnees); // elle neutralise tous les caractères susceptibles d'être à l'origine d'une injection SQL.
+                    $donnees = addcslashes($donnees, '%_'); //pour gerer les injections sql qui visent notamment à surcharger notre serveur en alourdissant notre requête. Ce type d'injection utilise les caractères % et _.
+                    return $donnees;
+                }
                 if (isset($_POST["valider"])) {
-                    $supPro = $_POST["produit"];
+                    $supPro = securisation($_POST["produit"]);
 
                     try {
                         $connexion = new PDO("mysql:host=$serveur;dbname=mini-projet-php;charset=utf8", $Monlogin, $Monpass); //se connecte au serveur mysquel
